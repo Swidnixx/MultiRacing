@@ -5,7 +5,7 @@ using UnityEngine;
 public class Wheel : MonoBehaviour
 {
     public bool frontWheel;
-    WheelCollider wheelCollider;
+    public WheelCollider wheelCollider { get; private set; }
     Transform wheelModel;
 
     private void Start()
