@@ -9,10 +9,18 @@ public class CheckpointController : MonoBehaviour
     int pointCount;
     public int nextPoint;
 
+    public GameObject lastPoint;
+
     private void Start()
     {
         GameObject[] checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
         pointCount = checkpoints.Length;
+
+        foreach(GameObject checkpoint in checkpoints)
+        {
+            if(checkpoint.name == "0")
+                lastPoint = checkpoint;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -22,6 +30,7 @@ public class CheckpointController : MonoBehaviour
             int number = int.Parse(other.name);
             if( number == nextPoint )
             {
+                lastPoint = other.gameObject;
                 checkpoint = nextPoint;
                 nextPoint++;
 
