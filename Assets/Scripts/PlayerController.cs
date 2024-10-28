@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (checkpointController.lap > RaceController.totalLaps) return;
         FailCheck();
 
         if (RaceController.racePending == false) return;

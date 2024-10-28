@@ -10,6 +10,8 @@ public class CarAppearance : MonoBehaviour
     public TMP_Text nameText;
     public Renderer[] carRenderers;
 
+    public int playerNumber;
+
     private void Start()
     {
         nameText.text = playerName;
