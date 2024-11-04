@@ -14,6 +14,13 @@ public class CarAppearance : MonoBehaviour
 
     private void Start()
     {
+        if (playerNumber == 0)
+        {
+            playerName = PlayerPrefs.GetString("PlayerName");
+            carColor = new Color(PlayerPrefs.GetFloat("R"),
+                PlayerPrefs.GetFloat("G"), PlayerPrefs.GetFloat("B")); 
+        }
+
         nameText.text = playerName;
         nameText.color = carColor;
 
