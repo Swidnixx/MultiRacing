@@ -12,14 +12,11 @@ public class CarAppearance : MonoBehaviour
 
     public int playerNumber;
 
-    private void Start()
+    public void SetLocalPlayer()
     {
-        if (playerNumber == 0)
-        {
-            playerName = PlayerPrefs.GetString("PlayerName");
-            carColor = new Color(PlayerPrefs.GetFloat("R"),
-                PlayerPrefs.GetFloat("G"), PlayerPrefs.GetFloat("B")); 
-        }
+        playerName = PlayerPrefs.GetString("PlayerName");
+        carColor = new Color(PlayerPrefs.GetFloat("R"),
+            PlayerPrefs.GetFloat("G"), PlayerPrefs.GetFloat("B")); 
 
         nameText.text = playerName;
         nameText.color = carColor;
@@ -27,6 +24,19 @@ public class CarAppearance : MonoBehaviour
         foreach (Renderer r in carRenderers)
         {
             r.material.color = carColor;
+        }
+
+        FindObjectOfType<CameraController>().SetCameraProperties(this.gameObject);
+    }
+
+    public void SetNameAndColor(string name, Color color)
+    {
+        nameText.text = name;
+        nameText.color = color;
+
+        foreach (Renderer r in carRenderers)
+        {
+            r.material.color = color;
         }
     }
 }

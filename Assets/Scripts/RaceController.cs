@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
+using Photon.Pun;
 
-public class RaceController : MonoBehaviour
+public class RaceController : MonoBehaviourPunCallbacks
 {
+    public GameObject startButton;
+    public GameObject waitingText;
+
     public static bool racePending = false;
     public static int totalLaps = 1;
     public int timer = 4;
@@ -21,32 +25,60 @@ public class RaceController : MonoBehaviour
     CheckpointController[] cars;
     AudioSource audioSource;
 
+    public void CallStartRaceRPC()
+    {
+        if (PhotonNetwork.IsMasterClient)
+        {
+            photonView.RPC(nameof(StartRace), RpcTarget.All); 
+        }
+    }
+    [PunRPC] //Remote Procedure Call - Zdalne wywo³anie Procedury
+    public void StartRace()
+    {
+        startButton.SetActive(false);
+        waitingText.SetActive(false);
+        InvokeRepeating(nameof(CountDown), 3, 1);
+        cars = GameObject.FindObjectsOfType<CheckpointController>();
+    }
+
     private void Start()
     {
+        startButton.SetActive(false);
+        waitingText.SetActive(false);
+
         endRacePanel.SetActive(false);
         startText.gameObject.SetActive(false);
 
-        InvokeRepeating(nameof(CountDown), 3, 1);
         audioSource = GetComponent<AudioSource>();
 
-        for(int i=0; i<playerCount; i++)
+        //new version
+        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+        if(PhotonNetwork.IsConnected)
         {
-            GameObject car = Instantiate(carPrefab).transform.GetChild(0).gameObject;
-            car.transform.position = spawnPos[i].position;
-            car.transform.rotation = spawnPos[i].rotation;
-            car.GetComponent<CarAppearance>().playerNumber = i;
-            if(i == 0)
-            {
-                car.GetComponent<PlayerController>().enabled = true;
-                GameObject.FindObjectOfType<CameraController>().SetCameraProperties(car);
-            }
-        }
+            Vector3 startPos = spawnPos[playerCount - 1].position;
+            Quaternion startRot = spawnPos[playerCount - 1].rotation;
+            object[] instanceData = new object[4];
+            instanceData[0] = PlayerPrefs.GetString("PlayerName");
+            instanceData[1] = PlayerPrefs.GetFloat("R");
+            instanceData[2] = PlayerPrefs.GetFloat("G");
+            instanceData[3] = PlayerPrefs.GetFloat("B");
+            GameObject player = PhotonNetwork.Instantiate(carPrefab.name, startPos, startRot, 0, instanceData);
 
-        cars = GameObject.FindObjectsOfType<CheckpointController>();
+            if (PhotonNetwork.IsMasterClient)
+                startButton.SetActive(true);
+            else
+                waitingText.SetActive(true);
+
+            player.GetComponentInChildren<PlayerController>().enabled = true;
+            //configure CarAppearance
+            //configureCamera
+        }
     }
 
     private void LateUpdate()
     {
+        if (!racePending) return;
+
         int finishers = 0;
 
         foreach(var c in cars)
