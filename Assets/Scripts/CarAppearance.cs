@@ -31,6 +31,9 @@ public class CarAppearance : MonoBehaviour
 
     public void SetNameAndColor(string name, Color color)
     {
+        playerName = name;
+        carColor = color;
+
         nameText.text = name;
         nameText.color = color;
 

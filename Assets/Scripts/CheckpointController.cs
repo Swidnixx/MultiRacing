@@ -11,8 +11,14 @@ public class CheckpointController : MonoBehaviour
 
     public GameObject lastPoint;
 
+    CarAppearance carApp;
+    int carId = -1;
+
     private void Start()
     {
+        carApp = GetComponent<CarAppearance>();
+        carId = LeaderboardController.Register(carApp.playerName);
+
         GameObject[] checkpoints = GameObject.FindGameObjectsWithTag("Checkpoint");
         pointCount = checkpoints.Length;
 
@@ -21,6 +27,10 @@ public class CheckpointController : MonoBehaviour
             if(checkpoint.name == "0")
                 lastPoint = checkpoint;
         }
+    }
+    private void LateUpdate()
+    {
+        LeaderboardController.SetPosition(carId, lap, checkpoint);
     }
 
     private void OnTriggerEnter(Collider other)
