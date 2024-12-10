@@ -11,7 +11,7 @@ public class RaceLauncher : MonoBehaviourPunCallbacks
     public TMP_Text networkText;
     bool isConnecting;
     byte maxPlayerPerRoom = 4;
-    string raceScene = "TestTrack";
+    string raceScene = "RaceTrack";
 
     private void Awake()
     {
