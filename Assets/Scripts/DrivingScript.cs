@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,6 +26,18 @@ public class DrivingScript : MonoBehaviour
                 wheel.wheelCollider.steerAngle = steer;
             }
             wheel.wheelCollider.brakeTorque = brake;
+        }
+    }
+
+    public void StopRbForces()
+    {
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        foreach(var w in wheels)
+        {
+            w.wheelCollider.motorTorque = 0;
+            w.wheelCollider.brakeTorque = brakeTorque;
         }
     }
 }

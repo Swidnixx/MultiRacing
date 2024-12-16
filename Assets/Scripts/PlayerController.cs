@@ -35,6 +35,12 @@ public class PlayerController : MonoBehaviour
         }
         if(Time.time > lastTimeMoving + 5)
         {
+            Vector3 fixPos = checkpointController.lastPoint.transform.position;
+            fixPos.y = 0;
+            Vector3 carPos = transform.position;
+            carPos.y = 0;
+            float distance = Vector2.Distance(fixPos,carPos);
+            if (distance < 0.5f) return;
             //kraksa
             driveScript.rb.position = checkpointController.lastPoint.transform.position;
             driveScript.rb.rotation = checkpointController.lastPoint.transform.rotation;

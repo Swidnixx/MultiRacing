@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class RaceController : MonoBehaviourPunCallbacks
 {
@@ -25,10 +26,13 @@ public class RaceController : MonoBehaviourPunCallbacks
     CheckpointController[] cars;
     AudioSource audioSource;
 
+    int playerNumber;
+
     public void CallStartRaceRPC()
     {
         if (PhotonNetwork.IsMasterClient)
         {
+            PhotonNetwork.CurrentRoom.IsOpen = false;
             photonView.RPC(nameof(StartRace), RpcTarget.All); 
         }
     }
@@ -52,11 +56,11 @@ public class RaceController : MonoBehaviourPunCallbacks
         audioSource = GetComponent<AudioSource>();
 
         //new version
-        int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
+        playerNumber = PhotonNetwork.CurrentRoom.PlayerCount - 1;
         if(PhotonNetwork.IsConnected)
         {
-            Vector3 startPos = spawnPos[playerCount - 1].position;
-            Quaternion startRot = spawnPos[playerCount - 1].rotation;
+            Vector3 startPos = spawnPos[playerNumber].position;
+            Quaternion startRot = spawnPos[playerNumber].rotation;
             object[] instanceData = new object[4];
             instanceData[0] = PlayerPrefs.GetString("PlayerName");
             instanceData[1] = PlayerPrefs.GetFloat("R");
@@ -119,8 +123,40 @@ public class RaceController : MonoBehaviourPunCallbacks
         startText.gameObject.SetActive(false);
     }
 
+    [PunRPC]
+    public void RestartRPC()
+    {
+       timer = 4;
+
+        OnlinePlayer.LocalPlayerInstance.GetComponentInChildren<DrivingScript>()
+            .StopRbForces();
+
+        OnlinePlayer.LocalPlayerInstance.transform.GetChild(0).position =
+            spawnPos[playerNumber].position;
+        OnlinePlayer.LocalPlayerInstance.transform.GetChild(0).rotation =
+            spawnPos[playerNumber].rotation;
+
+        foreach (var c in cars)
+        {
+            c.Restart();
+        }
+
+        endRacePanel.SetActive(false);
+
+        if (PhotonNetwork.IsMasterClient)
+            startButton.SetActive(true);
+        else
+            waitingText.SetActive(true);
+    }
     public void RestartRace()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        photonView.RPC(nameof(RestartRPC), RpcTarget.All);
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        base.OnPlayerLeftRoom(otherPlayer);
+
+        PhotonNetwork.CurrentRoom.IsOpen = false;
     }
 }
